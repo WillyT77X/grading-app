@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Grading App</title>
+<title>Competency Grading</title>
 
 <style>
 body{
@@ -11,31 +11,31 @@ body{
     margin:20px;
 }
 
-h2{margin-bottom:15px;}
+h2{margin-bottom:20px;}
 
 .comp{
     background:#fff;
-    padding:18px;
+    padding:20px;
     border-radius:10px;
-    margin-bottom:25px;
+    margin-bottom:30px;
 }
 
 .grid{
     display:grid;
-    grid-template-columns:2fr 1fr 1fr 1.5fr;
-    gap:10px;
-    align-items:center;
+    grid-template-columns:minmax(340px,3.5fr) 1fr 1fr 1.4fr;
+    gap:14px;
+    align-items:start;
 }
 
 .header{
     font-weight:bold;
     border-bottom:2px solid #ddd;
     padding-bottom:8px;
-    margin-bottom:10px;
+    margin-bottom:12px;
 }
 
 .row{
-    padding:12px 0;
+    padding:14px 0;
     border-bottom:1px solid #eee;
 }
 
@@ -43,7 +43,7 @@ h2{margin-bottom:15px;}
 
 textarea{
     width:100%;
-    min-height:40px;
+    min-height:44px;
     border-radius:6px;
     border:1px solid #ccc;
     padding:6px;
@@ -51,11 +51,11 @@ textarea{
 
 .root{
     display:none;
-    margin-top:6px;
+    margin-top:8px;
 }
 
 input[type="radio"]{
-    transform:scale(1.2);
+    transform:scale(1.15);
     margin-right:4px;
 }
 
@@ -70,11 +70,11 @@ input[type="radio"]{
 
 .grade-line{
     font-weight:bold;
-    margin-top:12px;
+    margin-top:15px;
 }
 
 .overall{
-    font-size:20px;
+    font-size:22px;
     font-weight:bold;
     margin-top:25px;
 }
@@ -117,13 +117,13 @@ Overall Grade: <span id="overallGrade">—</span>
 const weights=[7,6,5.1,4.2,3.3,2.2,1];
 
 const obs=[
-"OB 1.1 Identifies procedures",
-"OB 1.2 Applies procedures correctly",
-"OB 1.3 Follows SOPs appropriately",
-"OB 1.4 Operates systems correctly",
-"OB 1.5 Monitors systems effectively",
-"OB 1.6 Complies with regulations",
-"OB 1.7 Applies procedural knowledge"
+"OB 1.1 Identifies where to find procedures and regulations",
+"OB 1.2 Applies relevant operating instructions and procedures correctly",
+"OB 1.3 Follows SOPs unless safety requires appropriate deviation",
+"OB 1.4 Operates aircraft systems correctly and within limits",
+"OB 1.5 Monitors aircraft systems effectively and detects deviations",
+"OB 1.6 Complies with regulatory and organisational requirements",
+"OB 1.7 Applies procedural knowledge consistently under workload"
 ];
 
 const rowsContainer=document.getElementById("rows");
