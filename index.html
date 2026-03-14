@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Grading App</title>
+<title>Competency Grading</title>
 
 <style>
 body{
@@ -69,7 +69,7 @@ input[type="radio"]{
     padding:10px;
     border-radius:8px;
     font-weight:600;
-    margin-bottom:15px;
+    margin-bottom:20px;
     display:none;
 }
 
@@ -79,39 +79,21 @@ input[type="radio"]{
 }
 
 .overall{
-    font-size:22px;
+    font-size:24px;
     font-weight:bold;
-    margin-top:25px;
+    margin-top:30px;
 }
 
 .red{color:#b30000;}
 .orange{color:#cc5500;}
-
 </style>
 </head>
 <body>
 
-<h2>Grading App</h2>
+<h2>Competency Grading</h2>
 
 <div id="override" class="override"></div>
-
-<div class="comp">
-<h3>Application of Procedures</h3>
-
-<div class="grid header">
-<div>Observable Behaviour</div>
-<div>Grade</div>
-<div>Outcome</div>
-<div>Comments</div>
-</div>
-
-<div id="rows"></div>
-
-<div class="grade-line">
-Competency Grade: <span id="compGrade">—</span>
-</div>
-
-</div>
+<div id="competencies"></div>
 
 <div class="overall">
 Overall Grade: <span id="overallGrade">—</span>
@@ -119,23 +101,69 @@ Overall Grade: <span id="overallGrade">—</span>
 
 <script>
 
-const weights=[7,6,5.1,4.2,3.3,2.2,1];
-
-const obs=[
-"OB 1.1 Identifies where to find procedures and regulations",
-"OB 1.2 Applies relevant operating instructions and procedures correctly in a timely and accurate manner",
-"OB 1.3 Follows SOPs unless safety dictates appropriate deviation",
-"OB 1.4 Operates aircraft systems correctly and within approved limits",
-"OB 1.5 Monitors aircraft systems effectively and detects deviations promptly",
-"OB 1.6 Complies with regulatory and organisational requirements",
-"OB 1.7 Applies procedural knowledge consistently under workload conditions"
+const competencies = [
+{
+title:"Application of Procedures",
+obs:[
+"Identifies where to find procedures and regulations",
+"Applies relevant operating instructions correctly",
+"Follows SOPs unless safety dictates deviation",
+"Operates aircraft systems correctly",
+"Monitors aircraft systems effectively",
+"Complies with regulations",
+"Applies procedural knowledge under workload"
+]
+},
+{
+title:"Communication",
+obs:[
+"Determines recipient readiness",
+"Selects appropriate communication method",
+"Conveys messages clearly and concisely",
+"Confirms understanding",
+"Listens actively",
+"Uses escalation appropriately"
+]
+}
 ];
 
-const rowsContainer=document.getElementById("rows");
+function createWeights(n){
+    let arr=[];
+    for(let i=n;i>0;i--) arr.push(i);
+    return arr;
+}
 
-obs.forEach((text,i)=>{
+function band(avg){
+if(avg<=1.5) return 1;
+if(avg<=2.5) return 2;
+if(avg<=3.5) return 3;
+if(avg<=4.5) return 4;
+return 5;
+}
 
-rowsContainer.innerHTML+=`
+function build(){
+
+const container=document.getElementById("competencies");
+
+competencies.forEach((comp,index)=>{
+
+const weights=createWeights(comp.obs.length);
+
+let block=`
+<div class="comp" data-comp="${index}">
+<h3>${comp.title}</h3>
+
+<div class="grid header">
+<div>Observable Behaviour</div>
+<div>Grade</div>
+<div>Outcome</div>
+<div>Comments</div>
+</div>
+`;
+
+comp.obs.forEach((text,i)=>{
+
+block+=`
 <div class="row" data-weight="${weights[i]}">
 
 <div class="grid">
@@ -143,18 +171,18 @@ rowsContainer.innerHTML+=`
 <div>${text}</div>
 
 <div>
-<label><input type="radio" name="perf_${i}" value="1" class="perf">–</label>
-<label><input type="radio" name="perf_${i}" value="3" class="perf">0</label>
-<label><input type="radio" name="perf_${i}" value="5" class="perf">+</label>
-<label><input type="radio" name="perf_${i}" value="0" class="perf">NA</label>
+<label><input type="radio" name="perf_${index}_${i}" value="1" class="perf">–</label>
+<label><input type="radio" name="perf_${index}_${i}" value="3" class="perf">0</label>
+<label><input type="radio" name="perf_${index}_${i}" value="5" class="perf">+</label>
+<label><input type="radio" name="perf_${index}_${i}" value="0" class="perf">NA</label>
 </div>
 
 <div>
-<label><input type="radio" name="sev_${i}" value="5" class="sev">5</label>
-<label><input type="radio" name="sev_${i}" value="4" class="sev">4</label>
-<label><input type="radio" name="sev_${i}" value="3" class="sev">3</label>
-<label><input type="radio" name="sev_${i}" value="2" class="sev">2</label>
-<label><input type="radio" name="sev_${i}" value="1" class="sev">1</label>
+<label><input type="radio" name="sev_${index}_${i}" value="5" class="sev">5</label>
+<label><input type="radio" name="sev_${index}_${i}" value="4" class="sev">4</label>
+<label><input type="radio" name="sev_${index}_${i}" value="3" class="sev">3</label>
+<label><input type="radio" name="sev_${index}_${i}" value="2" class="sev">2</label>
+<label><input type="radio" name="sev_${index}_${i}" value="1" class="sev">1</label>
 </div>
 
 <div>
@@ -169,44 +197,50 @@ rowsContainer.innerHTML+=`
 
 </div>
 `;
+});
+
+block+=`
+<div class="grade-line">
+Competency Grade: <span class="compGrade">—</span>
+</div>
+</div>
+`;
+
+container.innerHTML+=block;
 
 });
 
-function band(avg){
-if(avg<=1.5) return 1;
-if(avg<=2.5) return 2;
-if(avg<=3.5) return 3;
-if(avg<=4.5) return 4;
-return 5;
 }
 
 function calculate(){
 
-const override=document.getElementById("override");
-const overall=document.getElementById("overallGrade");
-const compGrade=document.getElementById("compGrade");
+let override=document.getElementById("override");
+let overall=document.getElementById("overallGrade");
 
-const severities=Array.from(document.querySelectorAll(".sev:checked"))
-.map(el=>parseInt(el.value));
+let allCompGrades=[];
+let severities=[];
+
+document.querySelectorAll(".sev:checked").forEach(el=>{
+    severities.push(parseInt(el.value));
+});
 
 if(severities.length){
+
 let lowest=Math.min(...severities);
 
 if(lowest===1){
 override.style.display="block";
 override.textContent="⚠ Overall Grade adjusted to DTE (Outcome Triggered)";
-overall.textContent="DTE";
+overall.textContent="1";
 overall.className="red";
-compGrade.textContent="DTE";
 return;
 }
 
 if(lowest===2){
 override.style.display="block";
 override.textContent="⚠ Overall Grade adjusted to LTE (Outcome Triggered)";
-overall.textContent="LTE";
+overall.textContent="2";
 overall.className="orange";
-compGrade.textContent="LTE";
 return;
 }
 }
@@ -214,9 +248,12 @@ return;
 override.style.display="none";
 overall.className="";
 
-let total=0, weightTotal=0;
+document.querySelectorAll(".comp").forEach(compBlock=>{
 
-document.querySelectorAll(".row").forEach(row=>{
+let total=0;
+let weightTotal=0;
+
+compBlock.querySelectorAll(".row").forEach(row=>{
 let weight=parseFloat(row.dataset.weight);
 let perf=row.querySelector(".perf:checked");
 if(perf && perf.value!=="0"){
@@ -225,15 +262,26 @@ weightTotal+=weight;
 }
 });
 
+let gradeSpan=compBlock.querySelector(".compGrade");
+
 if(weightTotal){
 let avg=total/weightTotal;
 let grade=band(avg);
-compGrade.textContent=grade;
-overall.textContent=grade;
+gradeSpan.textContent=grade;
+allCompGrades.push(grade);
 }else{
-compGrade.textContent="—";
+gradeSpan.textContent="—";
+}
+
+});
+
+if(allCompGrades.length){
+let overallAvg=allCompGrades.reduce((a,b)=>a+b)/allCompGrades.length;
+overall.textContent=Math.round(overallAvg);
+}else{
 overall.textContent="—";
 }
+
 }
 
 document.addEventListener("change",function(e){
@@ -249,9 +297,11 @@ root.style.display="none";
 }
 
 calculate();
+
 });
 
-</script>
+build();
 
+</script>
 </body>
 </html>
