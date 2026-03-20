@@ -22,7 +22,7 @@ h1{margin-bottom:10px;}
 
 .grid{
     display:grid;
-    grid-template-columns: 1.4fr auto auto 1.3fr;
+    grid-template-columns: 1.5fr auto auto 1.3fr;
     gap:16px;
     align-items:center;
 }
@@ -35,7 +35,7 @@ h1{margin-bottom:10px;}
 }
 
 .row{
-    padding:12px 0;
+    padding:14px 0;
     border-bottom:1px solid #eee;
 }
 
@@ -62,7 +62,7 @@ textarea{
 
 input[type="radio"]{
     transform:scale(1.1);
-    margin-right:3px;
+    margin-right:4px;
 }
 
 .compFooter{
@@ -187,13 +187,6 @@ container.innerHTML+=block;
 });
 }
 
-function autoOutcome(row, gradeValue){
-let outcomes=row.querySelectorAll(".out");
-if(gradeValue==5) outcomes[0].checked=true;
-if(gradeValue==3) outcomes[2].checked=true;
-if(gradeValue==1) outcomes[3].checked=true;
-}
-
 function calculate(){
 
 let overall=document.getElementById("overallGrade");
@@ -202,16 +195,14 @@ let result=document.getElementById("result");
 let overrideLevel=null;
 let compGrades=[];
 
+/* Check for manual overrides */
 document.querySelectorAll(".row").forEach(row=>{
 row.classList.remove("lte","dte");
 
-let grade=row.querySelector(".grade:checked");
 let outcome=row.querySelector(".out:checked");
 let rootNote=row.querySelector(".rootNote");
 
-if(grade && !outcome){
-autoOutcome(row, grade.value);
-}
+rootNote.style.display="none";
 
 if(outcome){
 let val=parseInt(outcome.value);
@@ -221,17 +212,16 @@ row.classList.add("lte");
 rootNote.style.display="block";
 overrideLevel=overrideLevel===1?1:2;
 }
+
 if(val==1){
 row.classList.add("dte");
 rootNote.style.display="block";
 overrideLevel=1;
 }
-if(val>=3){
-rootNote.style.display="none";
-}
 }
 });
 
+/* If override exists, force fail */
 if(overrideLevel){
 overall.textContent=overrideLevel;
 overall.className=overrideLevel==1?"red":"orange";
@@ -240,6 +230,7 @@ result.className="fail";
 return;
 }
 
+/* Normal weighted grade calculation */
 document.querySelectorAll(".comp").forEach((comp,ci)=>{
 let total=0;
 let weightTotal=0;
@@ -262,9 +253,11 @@ document.getElementById("compGrade_"+ci).textContent="—";
 }
 });
 
+/* Overall */
 if(compGrades.length){
 let avg=Math.round(compGrades.reduce((a,b)=>a+b)/compGrades.length);
 overall.textContent=avg;
+
 if(avg>=3){
 result.textContent="PASS";
 result.className="pass";
