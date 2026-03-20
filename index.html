@@ -1,360 +1,326 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<title>Professional Competency Grading</title>
+<meta charset="UTF-8" />
+<title>Emirates Competency Grading</title>
 
 <style>
-body{
-    font-family:-apple-system,BlinkMacSystemFont,Arial;
-    background:#f4f6f8;
-    margin:20px;
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f6f8;
+  margin: 20px;
 }
 
-h1{margin-bottom:10px;}
+h1 { margin-bottom: 10px; }
 
-.comp{
-    background:#fff;
-    padding:20px;
-    border-radius:10px;
-    margin-bottom:30px;
+button {
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
 }
 
-.grid{
-    display:grid;
-    grid-template-columns: 1.6fr auto auto 1.3fr;
-    gap:16px;
-    align-items:center;
+.competency {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
 }
 
-.header{
-    font-weight:bold;
-    border-bottom:2px solid #ddd;
-    padding-bottom:8px;
-    margin-bottom:10px;
+.header-row {
+  display: grid;
+  grid-template-columns: 40% 20% 20% 20%;
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #ddd;
 }
 
-.row{
-    padding:14px 0;
-    border-bottom:1px solid #eee;
+.row {
+  display: grid;
+  grid-template-columns: 40% 20% 20% 20%;
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+  align-items: center;
 }
 
-.row:last-child{border-bottom:none;}
-
-.row.lte{ background:#fff3cd; }
-.row.dte{ background:#f8d7da; }
-
-textarea{
-    width:100%;
-    min-height:40px;
-    border-radius:6px;
-    border:1px solid #ccc;
-    padding:6px;
+.ob-text {
+  line-height: 1.4;
+  white-space: normal;
 }
 
-.rootNote{
-    display:none;
-    font-size:13px;
-    font-weight:bold;
-    color:#b30000;
-    margin-top:4px;
+.outcome-group {
+  display: none;
 }
 
-input[type="radio"]{
-    transform:scale(1.1);
-    margin-right:4px;
+.highlight {
+  background: #fff4cc;
 }
 
-.compFooter{
-    margin-top:15px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
+.root-warning {
+  color: #c0392b;
+  font-size: 13px;
+  margin-top: 4px;
 }
 
-.compGrade{
-    font-weight:bold;
+.footer {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+  font-weight: 600;
 }
 
-.clearBtn{
-    padding:6px 14px;
-    border-radius:6px;
-    border:1px solid #ccc;
-    background:#f1f1f1;
-    cursor:pointer;
+textarea {
+  width: 95%;
+  height: 50px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  padding: 5px;
 }
-
-.overall{
-    font-size:22px;
-    font-weight:bold;
-    margin-top:20px;
-}
-
-.pass{color:green;}
-.fail{color:#b30000;}
-.orange{color:#cc5500;}
-.red{color:#b30000;}
 </style>
 </head>
 <body>
 
-<h1>Professional Competency Grading</h1>
+<h1>Grading App</h1>
+<button onclick="clearAll()">Clear ALL</button>
+<span style="margin-left:20px;">Overall Grade: <span id="overallGrade">—</span></span>
 
-<div id="competencies"></div>
-
-<div class="overall">
-Overall Grade: <span id="overallGrade">—</span><br>
-Result: <span id="result">—</span>
-</div>
+<div id="app"></div>
 
 <script>
 
 const competencies = [
 
 {
-title:'1. Application of Procedures',
+id:"K",
+title:"Application of Knowledge",
 obs:[
-'OB 1.1 Identifies where to find procedures and regulations',
-'OB 1.2 Applies relevant operating instructions, procedures and techniques in a timely manner',
-'OB 1.3 Follows SOPs unless a higher degree of safety dictates deviation',
-'OB 1.4 Operates aeroplane systems and associated equipment correctly',
-'OB 1.5 Monitors aircraft systems status',
-'OB 1.6 Complies with applicable regulations'
-]
-},
+{id:"0.1",text:"Demonstrates practical and applicable knowledge of limitations and systems and their interaction"},
+{id:"0.2",text:"Demonstrates required knowledge of published operating instructions"},
+{id:"0.3",text:"Demonstrates knowledge of the physical environment, the air traffic environment including routings, weather, airports and the operational infrastructure"},
+{id:"0.4",text:"Demonstrates appropriate knowledge of applicable legislation"},
+{id:"0.5",text:"Knows where to source required information"},
+{id:"0.6",text:"Demonstrates a positive interest in acquiring knowledge"},
+{id:"0.7",text:"Is able to apply knowledge effectively"}
+]},
 
 {
-title:'2. Communication',
+id:"P",
+title:"Application of Procedures and Compliance with Regulations",
 obs:[
-'OB 2.1 Communicates clearly and concisely',
-'OB 2.2 Uses standard phraseology',
-'OB 2.3 Actively listens and responds appropriately',
-'OB 2.4 Confirms understanding through readbacks'
-]
-},
+{id:"1.1",text:"Identifies where to find procedures and regulations"},
+{id:"1.2",text:"Applies relevant operating instructions, procedures and techniques in a timely manner"},
+{id:"1.3",text:"Follows SOPs unless a higher degree of safety dictates an appropriate deviation"},
+{id:"1.4",text:"Operates aeroplane systems and associated equipment correctly"},
+{id:"1.5",text:"Monitors aircraft systems status"},
+{id:"1.6",text:"Complies with applicable regulations."},
+{id:"1.7",text:"Applies relevant procedural knowledge"}
+]},
 
 {
-title:'3. Aircraft Flight Path Management – Manual Control',
+id:"C",
+title:"Communication",
 obs:[
-'OB 3.1 Controls aircraft manually within tolerances',
-'OB 3.2 Maintains situational awareness during manual flight',
-'OB 3.3 Applies appropriate manual control techniques'
-]
-},
+{id:"2.1",text:"Determines that the recipient is ready and able to receive information"},
+{id:"2.2",text:"Selects appropriately what, when, how and with whom to communicate"},
+{id:"2.3",text:"Conveys messages clearly, accurately and concisely"},
+{id:"2.4",text:"Confirms that the recipient demonstrates understanding of important information"},
+{id:"2.5",text:"Listens actively and demonstrates understanding when receiving information"},
+{id:"2.6",text:"Asks relevant and effective questions"},
+{id:"2.7",text:"Uses appropriate escalation in communication to resolve identified deviations"},
+{id:"2.8",text:"Uses and interprets non-verbal communication in a manner appropriate to the organizational and social culture"},
+{id:"2.9",text:"Adheres to standard radiotelephone phraseology and procedures"},
+{id:"2.10",text:"Accurately reads, interprets, constructs and responds to datalink messages in English"}
+]},
 
 {
-title:'4. Aircraft Flight Path Management – Automation',
+id:"A",
+title:"Aircraft Flight Path Management, Automation",
 obs:[
-'OB 4.1 Manages automation effectively',
-'OB 4.2 Selects appropriate level of automation',
-'OB 4.3 Monitors automation and intervenes when required'
-]
-},
+{id:"3.1",text:"Uses appropriate flight management, guidance systems and automation, as installed and applicable to the conditions"},
+{id:"3.2",text:"Monitors and detects deviations from the intended flight path and takes appropriate action"},
+{id:"3.3",text:"Manages the flight path safely to achieve optimum operational performance"},
+{id:"3.4",text:"Maintains the intended flight path during flight using automation while managing other tasks and distractions"},
+{id:"3.5",text:"Selects appropriate level and mode of automation in a timely manner considering phase of flight and workload"},
+{id:"3.6",text:"Effectively monitors automation, including engagement and automatic mode transitions"}
+]},
 
 {
-title:'5. Leadership and Teamwork',
+id:"H",
+title:"Aircraft Flight Path Management, Manual Control",
 obs:[
-'OB 5.1 Demonstrates leadership when appropriate',
-'OB 5.2 Encourages participation and teamwork',
-'OB 5.3 Manages workload distribution',
-'OB 5.4 Supports and monitors other crew members'
-]
-},
+{id:"4.1",text:"Controls the aircraft manually with accuracy and smoothness as appropriate to the situation"},
+{id:"4.2",text:"Monitors and detects deviations from the intended flight path and takes appropriate action"},
+{id:"4.3",text:"Manually controls the aeroplane using the relationship between aeroplane attitude, speed and thrust, and navigation signals or visual information"},
+{id:"4.4",text:"Manages the flight path safely to achieve optimum operational performance"},
+{id:"4.5",text:"Maintains the intended flight path during manual flight while managing other tasks and distractions"},
+{id:"4.6",text:"Uses appropriate flight management and guidance systems, as installed and applicable to the conditions"},
+{id:"4.7",text:"Effectively monitors flight guidance systems including engagement and automatic mode transitions"}
+]},
 
 {
-title:'6. Problem Solving and Decision Making',
+id:"L",
+title:"Leadership and Teamwork",
 obs:[
-'OB 6.1 Identifies problems promptly',
-'OB 6.2 Gathers relevant information',
-'OB 6.3 Evaluates options logically',
-'OB 6.4 Makes timely decisions',
-'OB 6.5 Reviews outcomes of decisions'
-]
-},
+{id:"5.1",text:"Encourages team participation and open communication"},
+{id:"5.2",text:"Demonstrates initiative and provides direction when required"},
+{id:"5.3",text:"Engages others in planning"},
+{id:"5.4",text:"Considers inputs from others"},
+{id:"5.5",text:"Gives and receives feedback constructively"},
+{id:"5.6",text:"Addresses and resolves conflicts and disagreements in a constructive manner"},
+{id:"5.7",text:"Exercises decisive leadership when required"},
+{id:"5.8",text:"Accepts responsibility for decisions and actions"},
+{id:"5.9",text:"Carries out instructions when directed"},
+{id:"5.10",text:"Applies effective intervention strategies to resolve identified deviations"},
+{id:"5.11",text:"Manages cultural and language challenges, as applicable"}
+]},
 
 {
-title:'7. Situational Awareness',
+id:"D",
+title:"Problem Solving and Decision Making",
 obs:[
-'OB 7.1 Maintains awareness of aircraft state',
-'OB 7.2 Anticipates future states and threats',
-'OB 7.3 Recognises deviations promptly'
-]
-},
+{id:"6.1",text:"Identifies, assesses and manages threats and errors in a timely manner"},
+{id:"6.2",text:"Seeks accurate and adequate information from appropriate sources"},
+{id:"6.3",text:"Identifies and verifies what and why things have gone wrong, if appropriate"},
+{id:"6.4",text:"Perseveres in working through problems while prioritizing safety"},
+{id:"6.5",text:"Identifies and considers appropriate options"},
+{id:"6.6",text:"Applies appropriate and timely decision-making techniques"},
+{id:"6.7",text:"Monitors, reviews and adapts decisions as required"},
+{id:"6.8",text:"Adapts when faced with situations where no guidance or procedure exists"},
+{id:"6.9",text:"Demonstrates resilience when encountering an unexpected event"}
+]},
 
 {
-title:'8. Workload Management',
+id:"S",
+title:"Situation Awareness and Management of Information",
 obs:[
-'OB 8.1 Prioritises tasks effectively',
-'OB 8.2 Manages time appropriately',
-'OB 8.3 Avoids fixation',
-'OB 8.4 Uses available resources efficiently'
-]
-},
+{id:"7.1",text:"Monitors and assesses the state of the aeroplane and its systems"},
+{id:"7.2",text:"Monitors and assesses the aeroplane’s energy state, and its anticipated flight path."},
+{id:"7.3",text:"Monitors and assesses the general environment as it may affect the operation"},
+{id:"7.4",text:"Validates the accuracy of information and checks for gross errors"},
+{id:"7.5",text:"Maintains awareness of the people involved in or affected by the operation and their capacity to perform as expected"},
+{id:"7.6",text:"Develops effective contingency plans based upon potential risks associated with threats and errors"},
+{id:"7.7",text:"Responds to indications of reduced situation awareness"}
+]},
 
 {
-title:'9. Knowledge',
+id:"M",
+title:"Workload Management",
 obs:[
-'OB 9.1 Demonstrates practical knowledge',
-'OB 9.2 Demonstrates systems knowledge',
-'OB 9.3 Demonstrates procedural knowledge',
-'OB 9.4 Demonstrates regulatory knowledge'
-]
-}
-
+{id:"8.1",text:"Exercises self-control in all situations"},
+{id:"8.2",text:"Plans, prioritizes and schedules appropriate tasks effectively"},
+{id:"8.3",text:"Manages time efficiently when carrying out tasks"},
+{id:"8.4",text:"Offers and gives assistance"},
+{id:"8.5",text:"Delegates tasks"},
+{id:"8.6",text:"Seeks and accepts assistance, when appropriate"},
+{id:"8.7",text:"Monitors, reviews and cross-checks actions conscientiously"},
+{id:"8.8",text:"Verifies that tasks are completed to the expected outcome"},
+{id:"8.9",text:"Manages and recovers from interruptions, distractions, variations and failures effectively while performing tasks"}
+]}
 ];
 
-function createWeights(n){
-let arr=[];
-for(let i=n;i>0;i--) arr.push(i);
-return arr;
-}
+createApp();
 
-function build(){
-const container=document.getElementById("competencies");
+function createApp(){
+const app=document.getElementById("app");
 
-competencies.forEach((comp,index)=>{
-const weights=createWeights(comp.obs.length);
+competencies.forEach(comp=>{
+const container=document.createElement("div");
+container.className="competency";
+container.id="comp-"+comp.id;
 
-let block=`<div class="comp">
+container.innerHTML=`
 <h2>${comp.title}</h2>
-
-<div class="grid header">
+<div class="header-row">
 <div>Observable Behaviour</div>
-<div>Grade (– / 0 / + / NA)</div>
+<div>Grade (− / 0 / + / NA)</div>
 <div>Outcome (5–1)</div>
 <div>Comments</div>
 </div>`;
 
-comp.obs.forEach((text,i)=>{
-block+=`
-<div class="row" data-weight="${weights[i]}">
-<div class="grid">
+comp.obs.forEach(ob=>{
+const row=document.createElement("div");
+row.className="row";
+row.id=`row-${comp.id}-${ob.id}`;
 
-<div>${text}</div>
-
+row.innerHTML=`
+<div class="ob-text">OB ${ob.id} ${ob.text}</div>
 <div>
-<label><input type="radio" name="grade_${index}_${i}" value="1" class="grade">–</label>
-<label><input type="radio" name="grade_${index}_${i}" value="3" class="grade">0</label>
-<label><input type="radio" name="grade_${index}_${i}" value="5" class="grade">+</label>
-<label><input type="radio" name="grade_${index}_${i}" value="0" class="grade">NA</label>
+${["-","0","+","NA"].map(v=>`<label><input type="radio" name="grade-${comp.id}-${ob.id}" value="${v}" onchange="updateComp('${comp.id}')"> ${v}</label>`).join(" ")}
 </div>
+<div class="outcome-group" id="out-${comp.id}-${ob.id}">
+${[{v:5,t:"5 HE"},{v:4,t:"4 E"},{v:3,t:"3 ME"},{v:2,t:"2 LTE"},{v:1,t:"1 DTE"}]
+.map(o=>`<label><input type="radio" name="outcome-${comp.id}-${ob.id}" value="${o.v}" onchange="updateComp('${comp.id}')"> ${o.t}</label>`).join(" ")}
+<div class="root-warning" id="warn-${comp.id}-${ob.id}"></div>
+</div>
+<div><textarea id="c-${comp.id}-${ob.id}"></textarea></div>`;
 
-<div>
-<label><input type="radio" name="out_${index}_${i}" value="5" class="out">5</label>
-<label><input type="radio" name="out_${index}_${i}" value="4" class="out">4</label>
-<label><input type="radio" name="out_${index}_${i}" value="3" class="out">3</label>
-<label><input type="radio" name="out_${index}_${i}" value="2" class="out">2</label>
-<label><input type="radio" name="out_${index}_${i}" value="1" class="out">1</label>
-</div>
-
-<div>
-<textarea></textarea>
-<div class="rootNote">Root cause required for LTE/DTE</div>
-</div>
-
-</div>
-</div>`;
+container.appendChild(row);
 });
 
-block+=`
-<div class="compFooter">
-<div class="compGrade">Competency Grade: <span id="compGrade_${index}">—</span></div>
-<button class="clearBtn" onclick="clearComp(this)">Clear Competency</button>
-</div>
+container.innerHTML+=`
+<div class="footer">
+<div>Competency Grade: <span id="g-${comp.id}">—</span></div>
+<button onclick="clearComp('${comp.id}')">Clear Competency</button>
 </div>`;
 
-container.innerHTML+=block;
+app.appendChild(container);
 });
 }
 
-function calculate(){
+function updateComp(id){
+let worst=5;
+const comp=competencies.find(c=>c.id===id);
 
-let overall=document.getElementById("overallGrade");
-let result=document.getElementById("result");
+comp.obs.forEach(ob=>{
+const grade=document.querySelector(`input[name="grade-${id}-${ob.id}"]:checked`);
+const outDiv=document.getElementById(`out-${id}-${ob.id}`);
+const warn=document.getElementById(`warn-${id}-${ob.id}`);
+const row=document.getElementById(`row-${id}-${ob.id}`);
+const comment=document.getElementById(`c-${id}-${ob.id}`);
 
-let overrideLevel=null;
-let compGrades=[];
+if(grade && (grade.value==="-"||grade.value==="0")) outDiv.style.display="block";
+else outDiv.style.display="none";
 
-document.querySelectorAll(".row").forEach(row=>{
-row.classList.remove("lte","dte");
-let outcome=row.querySelector(".out:checked");
-let rootNote=row.querySelector(".rootNote");
-rootNote.style.display="none";
-
+const outcome=document.querySelector(`input[name="outcome-${id}-${ob.id}"]:checked`);
 if(outcome){
-let val=parseInt(outcome.value);
-if(val==2){
-row.classList.add("lte");
-rootNote.style.display="block";
-overrideLevel=overrideLevel===1?1:2;
-}
-if(val==1){
-row.classList.add("dte");
-rootNote.style.display="block";
-overrideLevel=1;
-}
-}
-});
-
-if(overrideLevel){
-overall.textContent=overrideLevel;
-overall.className=overrideLevel==1?"red":"orange";
-result.textContent="FAIL";
-result.className="fail";
-return;
-}
-
-document.querySelectorAll(".comp").forEach((comp,ci)=>{
-let total=0;
-let weightTotal=0;
-
-comp.querySelectorAll(".row").forEach(row=>{
-let weight=parseFloat(row.dataset.weight);
-let grade=row.querySelector(".grade:checked");
-if(grade && grade.value!="0"){
-total+=parseInt(grade.value)*weight;
-weightTotal+=weight;
-}
-});
-
-if(weightTotal){
-let avg=Math.round(total/weightTotal);
-document.getElementById("compGrade_"+ci).textContent=avg;
-compGrades.push(avg);
-}else{
-document.getElementById("compGrade_"+ci).textContent="—";
-}
-});
-
-if(compGrades.length){
-let avg=Math.round(compGrades.reduce((a,b)=>a+b)/compGrades.length);
-overall.textContent=avg;
-if(avg>=3){
-result.textContent="PASS";
-result.className="pass";
-}else{
-result.textContent="FAIL";
-result.className="fail";
+const val=parseInt(outcome.value);
+worst=Math.min(worst,val);
+if(val<=2){
+row.classList.add("highlight");
+warn.innerText="Root cause required for LTE/DTE";
+if(comment.value.trim()==="") worst=1;
 }
 }else{
-overall.textContent="—";
-result.textContent="—";
+row.classList.remove("highlight");
+warn.innerText="";
 }
-}
-
-function clearComp(btn){
-let comp=btn.closest(".comp");
-comp.querySelectorAll("input[type='radio']").forEach(r=>r.checked=false);
-comp.querySelectorAll("textarea").forEach(t=>t.value="");
-comp.querySelectorAll(".row").forEach(r=>{
-r.classList.remove("lte","dte");
-r.querySelector(".rootNote").style.display="none";
 });
-calculate();
+
+document.getElementById("g-"+id).innerText=worst;
+updateOverall();
 }
 
-document.addEventListener("change",calculate);
-build();
+function updateOverall(){
+let overall=5;
+competencies.forEach(c=>{
+const g=document.getElementById("g-"+c.id).innerText;
+if(g!=="—") overall=Math.min(overall,parseInt(g));
+});
+document.getElementById("overallGrade").innerText=overall;
+}
+
+function clearComp(id){
+document.querySelectorAll(`#comp-${id} input`).forEach(i=>i.checked=false);
+document.querySelectorAll(`#comp-${id} textarea`).forEach(t=>t.value="");
+document.querySelectorAll(`#comp-${id} .outcome-group`).forEach(d=>d.style.display="none");
+document.querySelectorAll(`#comp-${id} .highlight`).forEach(r=>r.classList.remove("highlight"));
+document.getElementById("g-"+id).innerText="—";
+updateOverall();
+}
+
+function clearAll(){competencies.forEach(c=>clearComp(c.id));}
 
 </script>
 </body>
