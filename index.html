@@ -50,10 +50,6 @@ button {
   white-space: normal;
 }
 
-.outcome-group {
-  display: none;
-}
-
 .highlight {
   background: #fff4cc;
 }
@@ -91,7 +87,6 @@ textarea {
 <script>
 
 const competencies = [
-
 {
 id:"K",
 title:"Application of Knowledge",
@@ -104,7 +99,6 @@ obs:[
 {id:"0.6",text:"Demonstrates a positive interest in acquiring knowledge"},
 {id:"0.7",text:"Is able to apply knowledge effectively"}
 ]},
-
 {
 id:"P",
 title:"Application of Procedures and Compliance with Regulations",
@@ -117,7 +111,6 @@ obs:[
 {id:"1.6",text:"Complies with applicable regulations."},
 {id:"1.7",text:"Applies relevant procedural knowledge"}
 ]},
-
 {
 id:"C",
 title:"Communication",
@@ -133,7 +126,6 @@ obs:[
 {id:"2.9",text:"Adheres to standard radiotelephone phraseology and procedures"},
 {id:"2.10",text:"Accurately reads, interprets, constructs and responds to datalink messages in English"}
 ]},
-
 {
 id:"A",
 title:"Aircraft Flight Path Management, Automation",
@@ -145,7 +137,6 @@ obs:[
 {id:"3.5",text:"Selects appropriate level and mode of automation in a timely manner considering phase of flight and workload"},
 {id:"3.6",text:"Effectively monitors automation, including engagement and automatic mode transitions"}
 ]},
-
 {
 id:"H",
 title:"Aircraft Flight Path Management, Manual Control",
@@ -158,7 +149,6 @@ obs:[
 {id:"4.6",text:"Uses appropriate flight management and guidance systems, as installed and applicable to the conditions"},
 {id:"4.7",text:"Effectively monitors flight guidance systems including engagement and automatic mode transitions"}
 ]},
-
 {
 id:"L",
 title:"Leadership and Teamwork",
@@ -175,7 +165,6 @@ obs:[
 {id:"5.10",text:"Applies effective intervention strategies to resolve identified deviations"},
 {id:"5.11",text:"Manages cultural and language challenges, as applicable"}
 ]},
-
 {
 id:"D",
 title:"Problem Solving and Decision Making",
@@ -190,7 +179,6 @@ obs:[
 {id:"6.8",text:"Adapts when faced with situations where no guidance or procedure exists"},
 {id:"6.9",text:"Demonstrates resilience when encountering an unexpected event"}
 ]},
-
 {
 id:"S",
 title:"Situation Awareness and Management of Information",
@@ -203,7 +191,6 @@ obs:[
 {id:"7.6",text:"Develops effective contingency plans based upon potential risks associated with threats and errors"},
 {id:"7.7",text:"Responds to indications of reduced situation awareness"}
 ]},
-
 {
 id:"M",
 title:"Workload Management",
@@ -247,9 +234,9 @@ row.id=`row-${comp.id}-${ob.id}`;
 row.innerHTML=`
 <div class="ob-text">OB ${ob.id} ${ob.text}</div>
 <div>
-${["-","0","+","NA"].map(v=>`<label><input type="radio" name="grade-${comp.id}-${ob.id}" value="${v}" onchange="updateComp('${comp.id}')"> ${v}</label>`).join(" ")}
+${["-","0","+","NA"].map(v=>`<label><input type="radio" name="grade-${comp.id}-${ob.id}" value="${v}"> ${v}</label>`).join(" ")}
 </div>
-<div class="outcome-group" id="out-${comp.id}-${ob.id}">
+<div>
 ${[{v:5,t:"5 HE"},{v:4,t:"4 E"},{v:3,t:"3 ME"},{v:2,t:"2 LTE"},{v:1,t:"1 DTE"}]
 .map(o=>`<label><input type="radio" name="outcome-${comp.id}-${ob.id}" value="${o.v}" onchange="updateComp('${comp.id}')"> ${o.t}</label>`).join(" ")}
 <div class="root-warning" id="warn-${comp.id}-${ob.id}"></div>
@@ -274,27 +261,24 @@ let worst=5;
 const comp=competencies.find(c=>c.id===id);
 
 comp.obs.forEach(ob=>{
-const grade=document.querySelector(`input[name="grade-${id}-${ob.id}"]:checked`);
-const outDiv=document.getElementById(`out-${id}-${ob.id}`);
-const warn=document.getElementById(`warn-${id}-${ob.id}`);
+const outcome=document.querySelector(`input[name="outcome-${id}-${ob.id}"]:checked`);
 const row=document.getElementById(`row-${id}-${ob.id}`);
+const warn=document.getElementById(`warn-${id}-${ob.id}`);
 const comment=document.getElementById(`c-${id}-${ob.id}`);
 
-if(grade && (grade.value==="-"||grade.value==="0")) outDiv.style.display="block";
-else outDiv.style.display="none";
+row.classList.remove("highlight");
+warn.innerText="";
 
-const outcome=document.querySelector(`input[name="outcome-${id}-${ob.id}"]:checked`);
 if(outcome){
 const val=parseInt(outcome.value);
 worst=Math.min(worst,val);
 if(val<=2){
 row.classList.add("highlight");
 warn.innerText="Root cause required for LTE/DTE";
-if(comment.value.trim()==="") worst=1;
+if(comment.value.trim()===""){
+worst=1;
 }
-}else{
-row.classList.remove("highlight");
-warn.innerText="";
+}
 }
 });
 
@@ -314,8 +298,8 @@ document.getElementById("overallGrade").innerText=overall;
 function clearComp(id){
 document.querySelectorAll(`#comp-${id} input`).forEach(i=>i.checked=false);
 document.querySelectorAll(`#comp-${id} textarea`).forEach(t=>t.value="");
-document.querySelectorAll(`#comp-${id} .outcome-group`).forEach(d=>d.style.display="none");
 document.querySelectorAll(`#comp-${id} .highlight`).forEach(r=>r.classList.remove("highlight"));
+document.querySelectorAll(`#comp-${id} .root-warning`).forEach(w=>w.innerText="");
 document.getElementById("g-"+id).innerText="—";
 updateOverall();
 }
