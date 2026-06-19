@@ -451,14 +451,32 @@
   }
 
   async function init() {
-    // Handle magic link token in URL
+    // Handle magic link — Supabase puts tokens in URL hash
+    const hashParams = new URLSearchParams(window.location.hash.replace('#', ''));
+    const accessToken = hashParams.get('access_token');
+    const refreshToken = hashParams.get('refresh_token');
+
+    if (accessToken) {
+      const { data, error } = await sb.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken
+      });
+      if (data?.session) {
+        // Clean up URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        showApp(data.session.user);
+        return;
+      }
+    }
+
+    // Check existing session
     const { data: { session } } = await sb.auth.getSession();
     if (session) {
       showApp(session.user);
       return;
     }
 
-    // Listen for auth state changes (magic link click)
+    // Listen for auth state changes
     sb.auth.onAuthStateChange((event, session) => {
       if (session) showApp(session.user);
     });
@@ -583,7 +601,7 @@
 const COMP = [
   {
     key: 'procedures',
-    title: 'Application of Procedures & Compliance',
+    title: 'Procedures',
     obs: [
       { id:'1.1', text:'Identifies where to find procedures and regulations' },
       { id:'1.2', text:'Applies relevant operating instructions, procedures and techniques in a timely manner' },
@@ -596,7 +614,7 @@ const COMP = [
   },
   {
     key: 'knowledge',
-    title: 'Application of Knowledge',
+    title: 'Knowledge',
     obs: [
       { id:'0.1', text:'Demonstrates practical and applicable knowledge of limitations and systems and their interaction' },
       { id:'0.2', text:'Demonstrates required knowledge of published operating instructions' },
