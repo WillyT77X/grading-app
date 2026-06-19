@@ -1,311 +1,1041 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 <head>
-<meta charset="UTF-8" />
-<title>Emirates Competency Grading</title>
-
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Flight Training Competency Grader</title>
 <style>
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #f5f6f8;
-  margin: 20px;
-}
+  :root {
+    --maxw: 1200px;
+    --bg: #f0f2f5;
+    --ink: #0f172a;
+    --muted: #64748b;
+    --line: #e2e8f0;
+    --surface: #ffffff;
+    --surface-alt: #f8fafc;
+    --brand: #0f2942;
+    --brand-mid: #1e4d7b;
+    --accent: #2563eb;
+    --accent-ink: #ffffff;
+    --warn-bg: #fff7ed;
+    --warn-border: #f97316;
+    --warn-text: #7c2d12;
+    --danger-bg: #fef2f2;
+    --danger-border: #ef4444;
+    --rc-bg: #fef3c7;
+    --grade-bg: #eff6ff;
+    --grade-ink: #1d4ed8;
+    --radius: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.04);
+    --shadow-md: 0 4px 12px rgba(0,0,0,.10);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font: 15px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: var(--ink);
+    background: var(--bg);
+  }
 
-h1 { margin-bottom: 10px; }
+  /* ── Page wrapper ── */
+  .page { max-width: var(--maxw); margin: 0 auto; padding: 24px 16px 48px; }
 
-button {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  background: white;
-  cursor: pointer;
-}
+  /* ── Top header bar ── */
+  .app-header {
+    background: var(--brand);
+    color: #fff;
+    padding: 18px 24px 14px;
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow-md);
+  }
+  .app-header h1 { margin: 0 0 4px; font-size: 20px; font-weight: 700; letter-spacing: -.3px; }
+  .app-header p  { margin: 0; font-size: 12px; color: rgba(255,255,255,.6); }
 
-.competency {
-  background: white;
-  padding: 20px;
-  border-radius: 10px;
-  margin-bottom: 20px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-}
+  /* ── Session header card ── */
+  .session-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+  }
+  .session-card h2 { margin: 0 0 14px; font-size: 14px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .session-fields { display: flex; gap: 16px; flex-wrap: wrap; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; font-weight: 600; color: var(--muted); }
+  .field input, .field select {
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--ink);
+    background: var(--surface);
+    min-width: 180px;
+  }
+  .field input:focus, .field select:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .field.wide input { min-width: 260px; }
 
-.header-row {
-  display: grid;
-  grid-template-columns: 40% 20% 20% 20%;
-  font-weight: 600;
-  padding-bottom: 8px;
-  border-bottom: 1px solid #ddd;
-}
+  /* ── Toolbar ── */
+  .toolbar {
+    display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+    margin-bottom: 20px;
+  }
+  .btn {
+    border: 1px solid var(--line);
+    background: var(--surface);
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    box-shadow: var(--shadow);
+    transition: background .12s, border-color .12s;
+  }
+  .btn:hover { background: var(--surface-alt); border-color: #cbd5e1; }
+  .btn.primary { background: var(--accent); color: var(--accent-ink); border-color: var(--accent); }
+  .btn.primary:hover { background: #1d4ed8; border-color: #1d4ed8; }
+  .btn.danger  { background: #fee2e2; color: #b91c1c; border-color: #fca5a5; }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    border: 1px solid var(--line);
+    background: var(--surface);
+    padding: 8px 14px;
+    border-radius: var(--radius-sm);
+    font-size: 13px;
+    font-weight: 600;
+    box-shadow: var(--shadow);
+  }
+  .badge b { font-size: 15px; color: var(--accent); }
+  .spacer { flex: 1; }
 
-.row {
-  display: grid;
-  grid-template-columns: 40% 20% 20% 20%;
-  padding: 12px 0;
-  border-bottom: 1px solid #eee;
-  align-items: center;
-}
+  /* ── Scale legend ── */
+  .legend {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 12px;
+    color: var(--muted);
+    display: flex; gap: 20px; flex-wrap: wrap; align-items: center;
+  }
+  .legend strong { color: var(--ink); }
+  .legend .sep { color: var(--line); }
 
-.ob-text {
-  line-height: 1.4;
-  white-space: normal;
-}
+  /* ── Competency card ── */
+  .comp-card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    margin-bottom: 20px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+  }
+  .comp-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    background: var(--brand);
+    color: #fff;
+    flex-wrap: wrap;
+  }
+  .comp-header h2 { margin: 0; font-size: 14px; font-weight: 600; flex: 1; letter-spacing: -.1px; }
+  .comp-grade-badge {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,.12);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 999px;
+    padding: 4px 12px;
+    font-size: 12px;
+  }
+  .comp-grade-val {
+    font-size: 16px; font-weight: 800;
+    min-width: 20px; text-align: center;
+  }
+  .comp-avg-val { font-size: 11px; opacity: .75; }
+  .rc-badge {
+    background: #fef3c7; color: #92400e;
+    border: 1px solid #fbbf24;
+    border-radius: 999px;
+    padding: 3px 10px;
+    font-size: 11px;
+    font-weight: 700;
+  }
+  .btn-clear-comp {
+    background: rgba(255,255,255,.1);
+    color: rgba(255,255,255,.85);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    font: inherit;
+    font-size: 12px;
+    cursor: pointer;
+  }
+  .btn-clear-comp:hover { background: rgba(255,255,255,.2); }
 
-.highlight {
-  background: #fff4cc;
-}
+  /* ── OB table ── */
+  .ob-table { width: 100%; border-collapse: collapse; }
+  .ob-table th {
+    font-size: 11px; font-weight: 600; text-transform: uppercase;
+    letter-spacing: .5px; color: var(--muted);
+    background: var(--surface-alt);
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--line);
+    text-align: left;
+  }
+  .ob-table td { padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  .ob-table tr:last-child td { border-bottom: none; }
+  .ob-table tr.rc-row td { background: var(--rc-bg); }
+  .ob-text { font-size: 13px; color: var(--ink); line-height: 1.4; min-width: 220px; }
+  .ob-num { font-size: 11px; color: var(--muted); font-weight: 600; margin-bottom: 2px; }
 
-.root-warning {
-  color: #c0392b;
-  font-size: 13px;
-  margin-top: 4px;
-}
+  /* col widths */
+  .col-ob      { width: 35%; }
+  .col-grade   { width: 18%; }
+  .col-outcome { width: 28%; }
+  .col-comment { width: 19%; }
 
-.footer {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 10px;
-  font-weight: 600;
-}
+  /* ── Grade radios ── */
+  .grade-radios { display: flex; gap: 6px; flex-wrap: wrap; }
+  .grade-radio-label {
+    display: inline-flex; align-items: center;
+    gap: 0;
+    cursor: pointer;
+  }
+  .grade-radio-label input[type=radio] { display: none; }
+  .grade-pill {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 36px; height: 30px;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-size: 14px; font-weight: 700;
+    color: var(--muted);
+    background: var(--surface);
+    transition: all .1s;
+    user-select: none;
+  }
+  .grade-radio-label input:checked + .grade-pill {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 1px 4px rgba(37,99,235,.35);
+  }
+  .grade-radio-label:hover .grade-pill { border-color: var(--accent); color: var(--accent); }
 
-textarea {
-  width: 95%;
-  height: 50px;
-  border-radius: 6px;
-  border: 1px solid #ccc;
-  padding: 5px;
-}
+  /* NA pill slightly different */
+  .grade-radio-label.na-pill .grade-pill { font-size: 11px; width: 32px; }
+
+  /* ── Outcome chips (click-based, iOS-safe deselect) ── */
+  .outcome-radios { display: flex; gap: 5px; flex-wrap: wrap; }
+  .outcome-chip {
+    display: inline-flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 3px 7px;
+    border: 1.5px solid var(--line);
+    border-radius: var(--radius-sm);
+    font-size: 11px; font-weight: 700;
+    color: var(--muted);
+    background: var(--surface);
+    transition: all .12s;
+    line-height: 1.2;
+    min-width: 34px;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .outcome-chip .oc-num { font-size: 13px; font-weight: 800; }
+  .outcome-chip .oc-lbl { font-size: 9px; font-weight: 600; opacity: .7; }
+  .outcome-chip:hover { border-color: #94a3b8; }
+  .outcome-chip.oc-selected {
+    border-color: var(--accent);
+    background: var(--grade-bg);
+    color: var(--grade-ink);
+  }
+  .outcome-chip.low-chip.oc-selected {
+    border-color: var(--warn-border);
+    background: var(--warn-bg);
+    color: var(--warn-text);
+  }
+
+  /* ── Comment input ── */
+  .ob-comment {
+    width: 100%; min-height: 50px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    font: inherit; font-size: 12px;
+    resize: vertical;
+    background: var(--surface);
+    color: var(--ink);
+    transition: border-color .12s;
+  }
+  .ob-comment:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+
+  /* ── Competency footer ── */
+  .comp-footer {
+    display: flex; align-items: flex-start; gap: 16px; flex-wrap: wrap;
+    padding: 12px 16px;
+    background: var(--surface-alt);
+    border-top: 1px solid var(--line);
+  }
+  .comp-comment-wrap { flex: 1; min-width: 240px; }
+  .comp-comment-label { font-size: 11px; font-weight: 600; color: var(--muted); margin-bottom: 4px; }
+  .comp-comment {
+    width: 100%; min-height: 60px;
+    border: 1px solid var(--line);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    font: inherit; font-size: 13px;
+    resize: vertical;
+    background: var(--surface);
+  }
+  .comp-comment:focus { outline: 2px solid var(--accent); outline-offset: 1px; border-color: var(--accent); }
+  .comp-meta { display: flex; flex-direction: column; gap: 8px; align-items: flex-start; min-width: 180px; }
+  .rc-toggle { display: flex; align-items: center; gap: 8px; font-size: 13px; }
+  .rc-toggle label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+
+  /* ── Overall summary ── */
+  .overall-card {
+    background: var(--brand);
+    color: #fff;
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    margin-top: 24px;
+    display: flex; align-items: center; gap: 24px; flex-wrap: wrap;
+    box-shadow: var(--shadow-md);
+  }
+  .overall-card h3 { margin: 0; font-size: 13px; opacity: .7; font-weight: 500; }
+  .overall-grade-big { font-size: 52px; font-weight: 900; line-height: 1; }
+  .overall-avg-small { font-size: 13px; opacity: .65; }
+  .overall-divider { width: 1px; height: 60px; background: rgba(255,255,255,.2); }
+  .overall-comp-grid {
+    flex: 1; display: flex; gap: 8px; flex-wrap: wrap;
+  }
+  .overall-comp-chip {
+    background: rgba(255,255,255,.1);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: var(--radius-sm);
+    padding: 4px 10px;
+    font-size: 12px;
+    display: flex; flex-direction: column; align-items: center; gap: 1px;
+  }
+  .overall-comp-chip .occ-title { font-size: 10px; opacity: .6; }
+  .overall-comp-chip .occ-grade { font-size: 16px; font-weight: 800; }
+  .overall-comp-chip.forced { border-color: #fbbf24; background: rgba(251,191,36,.15); }
+
+  /* ── Print ── */
+  @media print {
+    body { background: #fff; font-size: 11px; }
+    .toolbar, .app-header p { display: none !important; }
+    .btn-clear-comp { display: none !important; }
+    .page { padding: 8px; }
+    .app-header { background: #fff; color: #000; border: 2px solid #000; border-radius: 4px; margin-bottom: 10px; padding: 10px 14px; box-shadow: none; }
+    .app-header h1 { font-size: 14px; }
+    .session-card { box-shadow: none; border-radius: 4px; margin-bottom: 10px; padding: 10px 12px; }
+    .legend { display: none; }
+    .comp-card { box-shadow: none; border-radius: 4px; margin-bottom: 12px; page-break-inside: avoid; }
+    .comp-header { background: #1f2937; -webkit-print-color-adjust: exact; print-color-adjust: exact; padding: 8px 12px; }
+    .ob-table th { font-size: 9px; padding: 5px 8px; }
+    .ob-table td { padding: 6px 8px; }
+    .grade-radios, .outcome-radios { display: none; }
+    .grade-print, .outcome-print { display: block !important; font-weight: 700; }
+    .ob-comment { border: none; padding: 0; min-height: 0; resize: none; font-size: 11px; }
+    .comp-footer { padding: 8px 12px; }
+    .comp-comment { border: none; padding: 0; font-size: 11px; min-height: 0; }
+    .overall-card { background: #1f2937; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .rc-toggle { display: none; }
+  }
+  .grade-print, .outcome-print { display: none; }
+
+  /* ── Auth screen ── */
+  .lock-screen {
+    position: fixed; inset: 0; z-index: 9999;
+    background: var(--brand);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 20px; padding: 32px;
+  }
+  .lock-logo { font-size: 48px; margin-bottom: 8px; }
+  .lock-title { color: #fff; font-size: 22px; font-weight: 800; margin: 0; text-align: center; }
+  .lock-sub { color: rgba(255,255,255,.55); font-size: 13px; margin: 0; text-align: center; }
+  .lock-box {
+    background: rgba(255,255,255,.07);
+    border: 1px solid rgba(255,255,255,.15);
+    border-radius: 14px;
+    padding: 28px 28px 24px;
+    display: flex; flex-direction: column; gap: 14px;
+    width: 100%; max-width: 340px;
+  }
+  .lock-input {
+    width: 100%; padding: 12px 14px;
+    border-radius: 8px; border: 1.5px solid rgba(255,255,255,.2);
+    background: rgba(255,255,255,.1); color: #fff;
+    font: inherit; font-size: 16px; outline: none; text-align: center;
+  }
+  .lock-input::placeholder { color: rgba(255,255,255,.35); }
+  .lock-input:focus { border-color: rgba(255,255,255,.5); background: rgba(255,255,255,.15); }
+  .lock-btn {
+    width: 100%; padding: 13px; border-radius: 8px; border: none;
+    background: #fff; color: var(--brand);
+    font: inherit; font-size: 15px; font-weight: 700;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .lock-btn:hover { opacity: .9; }
+  .lock-btn:disabled { opacity: .5; cursor: not-allowed; }
+  .lock-error { color: #fca5a5; font-size: 13px; text-align: center; min-height: 18px; }
+  .lock-success { color: #86efac; font-size: 13px; text-align: center; min-height: 18px; }
+  .lock-copyright { color: rgba(255,255,255,.3); font-size: 11px; text-align: center; margin-top: 8px; }
+  .lock-user { color: rgba(255,255,255,.7); font-size: 12px; text-align: center; }
+  .logout-btn {
+    position: fixed; top: 12px; right: 16px; z-index: 100;
+    background: rgba(255,255,255,.1); color: rgba(255,255,255,.7);
+    border: 1px solid rgba(255,255,255,.2);
+    border-radius: 6px; padding: 5px 12px;
+    font: inherit; font-size: 12px; cursor: pointer;
+    display: none;
+  }
+
+  /* ── Watermark ── */
+  .watermark {
+    text-align: center;
+    color: var(--muted);
+    font-size: 11px;
+    margin-top: 24px;
+    padding-bottom: 16px;
+  }
 </style>
 </head>
 <body>
 
-<h1>Grading App</h1>
-<button onclick="clearAll()">Clear ALL</button>
-<span style="margin-left:20px;">Overall Grade: <span id="overallGrade">—</span></span>
+<div class="lock-screen" id="lockScreen">
+  <div class="lock-logo">✈️</div>
+  <p class="lock-title">Flight Training Competency Grader</p>
+  <p class="lock-sub" id="lockSub">Enter your email to receive a login link</p>
+  <div class="lock-box">
+    <input class="lock-input" id="lockInput" type="email" placeholder="your@email.com" autocomplete="email" />
+    <button class="lock-btn" id="lockBtn">Send Login Link</button>
+    <div class="lock-error" id="lockError"></div>
+    <div class="lock-success" id="lockSuccess"></div>
+  </div>
+  <p class="lock-copyright">© 2026 Roger Blithe. Trial version — not for redistribution or sharing.</p>
+</div>
+<button class="logout-btn" id="logoutBtn">Sign out</button>
 
-<div id="app"></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function() {
+  const SUPABASE_URL  = 'https://haczvfieppstxfilkuvs.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImhhY3p2ZmllcHBzdHhmaWxrdXZzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE4NzE0NTMsImV4cCI6MjA5NzQ0NzQ1M30.pb3gp2KHGuVg8dRJTR6CVK9_oX6PCYb_bvQKv8hd-q4';
+
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON);
+
+  const lock      = document.getElementById('lockScreen');
+  const inp       = document.getElementById('lockInput');
+  const btn       = document.getElementById('lockBtn');
+  const errEl     = document.getElementById('lockError');
+  const succEl    = document.getElementById('lockSuccess');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const lockSub   = document.getElementById('lockSub');
+
+  function showApp(user) {
+    lock.style.display = 'none';
+    logoutBtn.style.display = 'block';
+    logoutBtn.textContent = 'Sign out (' + user.email + ')';
+  }
+
+  async function init() {
+    // Handle magic link token in URL
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      showApp(session.user);
+      return;
+    }
+
+    // Listen for auth state changes (magic link click)
+    sb.auth.onAuthStateChange((event, session) => {
+      if (session) showApp(session.user);
+    });
+  }
+
+  async function sendLink() {
+    const email = inp.value.trim();
+    if (!email) { errEl.textContent = 'Please enter your email.'; return; }
+    errEl.textContent = '';
+    succEl.textContent = '';
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { shouldCreateUser: false }
+    });
+
+    btn.disabled = false;
+    btn.textContent = 'Send Login Link';
+
+    if (error) {
+      errEl.textContent = 'Error: ' + error.message;
+    } else {
+      succEl.textContent = '✓ Login link sent! Check your email and click the link.';
+      lockSub.textContent = 'Check your email for the login link';
+      inp.value = '';
+    }
+  }
+
+  logoutBtn.addEventListener('click', async () => {
+    await sb.auth.signOut();
+    lock.style.display = 'flex';
+    logoutBtn.style.display = 'none';
+  });
+
+  btn.addEventListener('click', sendLink);
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') sendLink(); });
+
+  init();
+})();
+</script>
+
+<div class="page">
+
+  <!-- App header -->
+  <div class="app-header">
+    <h1>Flight Training Competency Grader</h1>
+    <p>EBT / Competency-based grading · Outcomes (TEM) · Root Cause flagging · Offline-capable</p>
+  </div>
+
+  <!-- Session info -->
+  <div class="session-card">
+    <h2>Training Session</h2>
+    <div class="session-fields">
+      <div class="field">
+        <label for="traineeNum">Trainee Staff Number</label>
+        <input type="text" id="traineeNum" placeholder="e.g. 12345" />
+      </div>
+      <div class="field">
+        <label for="trainerNum">Trainer Staff Number</label>
+        <input type="text" id="trainerNum" placeholder="e.g. 67890" />
+      </div>
+      <div class="field wide">
+        <label for="sessionName">Session / Training Type</label>
+        <input type="text" id="sessionName" placeholder="e.g. Line Check, OPC, Base Training…" />
+      </div>
+      <div class="field">
+        <label for="exerciseNum">Exercise / Lesson Number</label>
+        <input type="text" id="exerciseNum" placeholder="e.g. Ex 12, Lesson 4B…" />
+      </div>
+      <div class="field">
+        <label for="sessionDate">Date</label>
+        <input type="date" id="sessionDate" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <button class="btn" id="compactBtn">Compact View</button>
+    <button class="btn" id="saveBtn">💾 Save</button>
+    <button class="btn" id="loadBtn">📂 Load</button>
+    <button class="btn danger" id="clearBtn">Clear All</button>
+    <span class="spacer"></span>
+    <span class="badge" id="badgeAvg">Avg: <b>—</b></span>
+    <span class="badge" id="badgeGrade">Overall Grade: <b>—</b></span>
+    <button class="btn primary" id="printBtn">🖨 Print / PDF</button>
+  </div>
+
+  <!-- Scale legend -->
+  <div class="legend">
+    <span><strong>Grade input:</strong> – (Below) · 0 (Meets) · + (Exceeds) · NA (Not assessed)</span>
+    <span class="sep">|</span>
+    <span><strong>Calculated scale:</strong> ≤1.5 → 1 · 1.5–2.5 → 2 · 2.5–3.5 → 3 · 3.5–4.5 → 4 · ≥4.5 → 5</span>
+    <span class="sep">|</span>
+    <span><strong>Outcomes (TEM):</strong> 5 HE · 4 E · 3 ME · 2 LTE · 1 DTE — LTE/DTE force grade &amp; flag Root Cause</span>
+  </div>
+
+  <!-- Competency cards injected here -->
+  <div id="root"></div>
+
+  <!-- Overall summary -->
+  <div class="overall-card">
+    <div>
+      <h3>Overall Grade</h3>
+      <div class="overall-grade-big" id="overallGradeBig">—</div>
+      <div class="overall-avg-small" id="overallAvgSmall">Avg: —</div>
+    </div>
+    <div class="overall-divider"></div>
+    <div class="overall-comp-grid" id="overallCompGrid"></div>
+  </div>
+
+
+<div class="watermark">© 2026 Roger Blithe · Trial Version · Not for redistribution or sharing without written approval</div>
+</div><!-- /page -->
 
 <script>
-
-const competencies = [
-{
-id:"K",
-title:"Application of Knowledge",
-obs:[
-{id:"0.1",text:"Demonstrates practical and applicable knowledge of limitations and systems and their interaction"},
-{id:"0.2",text:"Demonstrates required knowledge of published operating instructions"},
-{id:"0.3",text:"Demonstrates knowledge of the physical environment, the air traffic environment including routings, weather, airports and the operational infrastructure"},
-{id:"0.4",text:"Demonstrates appropriate knowledge of applicable legislation"},
-{id:"0.5",text:"Knows where to source required information"},
-{id:"0.6",text:"Demonstrates a positive interest in acquiring knowledge"},
-{id:"0.7",text:"Is able to apply knowledge effectively"}
-]},
-{
-id:"P",
-title:"Application of Procedures and Compliance with Regulations",
-obs:[
-{id:"1.1",text:"Identifies where to find procedures and regulations"},
-{id:"1.2",text:"Applies relevant operating instructions, procedures and techniques in a timely manner"},
-{id:"1.3",text:"Follows SOPs unless a higher degree of safety dictates an appropriate deviation"},
-{id:"1.4",text:"Operates aeroplane systems and associated equipment correctly"},
-{id:"1.5",text:"Monitors aircraft systems status"},
-{id:"1.6",text:"Complies with applicable regulations."},
-{id:"1.7",text:"Applies relevant procedural knowledge"}
-]},
-{
-id:"C",
-title:"Communication",
-obs:[
-{id:"2.1",text:"Determines that the recipient is ready and able to receive information"},
-{id:"2.2",text:"Selects appropriately what, when, how and with whom to communicate"},
-{id:"2.3",text:"Conveys messages clearly, accurately and concisely"},
-{id:"2.4",text:"Confirms that the recipient demonstrates understanding of important information"},
-{id:"2.5",text:"Listens actively and demonstrates understanding when receiving information"},
-{id:"2.6",text:"Asks relevant and effective questions"},
-{id:"2.7",text:"Uses appropriate escalation in communication to resolve identified deviations"},
-{id:"2.8",text:"Uses and interprets non-verbal communication in a manner appropriate to the organizational and social culture"},
-{id:"2.9",text:"Adheres to standard radiotelephone phraseology and procedures"},
-{id:"2.10",text:"Accurately reads, interprets, constructs and responds to datalink messages in English"}
-]},
-{
-id:"A",
-title:"Aircraft Flight Path Management, Automation",
-obs:[
-{id:"3.1",text:"Uses appropriate flight management, guidance systems and automation, as installed and applicable to the conditions"},
-{id:"3.2",text:"Monitors and detects deviations from the intended flight path and takes appropriate action"},
-{id:"3.3",text:"Manages the flight path safely to achieve optimum operational performance"},
-{id:"3.4",text:"Maintains the intended flight path during flight using automation while managing other tasks and distractions"},
-{id:"3.5",text:"Selects appropriate level and mode of automation in a timely manner considering phase of flight and workload"},
-{id:"3.6",text:"Effectively monitors automation, including engagement and automatic mode transitions"}
-]},
-{
-id:"H",
-title:"Aircraft Flight Path Management, Manual Control",
-obs:[
-{id:"4.1",text:"Controls the aircraft manually with accuracy and smoothness as appropriate to the situation"},
-{id:"4.2",text:"Monitors and detects deviations from the intended flight path and takes appropriate action"},
-{id:"4.3",text:"Manually controls the aeroplane using the relationship between aeroplane attitude, speed and thrust, and navigation signals or visual information"},
-{id:"4.4",text:"Manages the flight path safely to achieve optimum operational performance"},
-{id:"4.5",text:"Maintains the intended flight path during manual flight while managing other tasks and distractions"},
-{id:"4.6",text:"Uses appropriate flight management and guidance systems, as installed and applicable to the conditions"},
-{id:"4.7",text:"Effectively monitors flight guidance systems including engagement and automatic mode transitions"}
-]},
-{
-id:"L",
-title:"Leadership and Teamwork",
-obs:[
-{id:"5.1",text:"Encourages team participation and open communication"},
-{id:"5.2",text:"Demonstrates initiative and provides direction when required"},
-{id:"5.3",text:"Engages others in planning"},
-{id:"5.4",text:"Considers inputs from others"},
-{id:"5.5",text:"Gives and receives feedback constructively"},
-{id:"5.6",text:"Addresses and resolves conflicts and disagreements in a constructive manner"},
-{id:"5.7",text:"Exercises decisive leadership when required"},
-{id:"5.8",text:"Accepts responsibility for decisions and actions"},
-{id:"5.9",text:"Carries out instructions when directed"},
-{id:"5.10",text:"Applies effective intervention strategies to resolve identified deviations"},
-{id:"5.11",text:"Manages cultural and language challenges, as applicable"}
-]},
-{
-id:"D",
-title:"Problem Solving and Decision Making",
-obs:[
-{id:"6.1",text:"Identifies, assesses and manages threats and errors in a timely manner"},
-{id:"6.2",text:"Seeks accurate and adequate information from appropriate sources"},
-{id:"6.3",text:"Identifies and verifies what and why things have gone wrong, if appropriate"},
-{id:"6.4",text:"Perseveres in working through problems while prioritizing safety"},
-{id:"6.5",text:"Identifies and considers appropriate options"},
-{id:"6.6",text:"Applies appropriate and timely decision-making techniques"},
-{id:"6.7",text:"Monitors, reviews and adapts decisions as required"},
-{id:"6.8",text:"Adapts when faced with situations where no guidance or procedure exists"},
-{id:"6.9",text:"Demonstrates resilience when encountering an unexpected event"}
-]},
-{
-id:"S",
-title:"Situation Awareness and Management of Information",
-obs:[
-{id:"7.1",text:"Monitors and assesses the state of the aeroplane and its systems"},
-{id:"7.2",text:"Monitors and assesses the aeroplane’s energy state, and its anticipated flight path."},
-{id:"7.3",text:"Monitors and assesses the general environment as it may affect the operation"},
-{id:"7.4",text:"Validates the accuracy of information and checks for gross errors"},
-{id:"7.5",text:"Maintains awareness of the people involved in or affected by the operation and their capacity to perform as expected"},
-{id:"7.6",text:"Develops effective contingency plans based upon potential risks associated with threats and errors"},
-{id:"7.7",text:"Responds to indications of reduced situation awareness"}
-]},
-{
-id:"M",
-title:"Workload Management",
-obs:[
-{id:"8.1",text:"Exercises self-control in all situations"},
-{id:"8.2",text:"Plans, prioritizes and schedules appropriate tasks effectively"},
-{id:"8.3",text:"Manages time efficiently when carrying out tasks"},
-{id:"8.4",text:"Offers and gives assistance"},
-{id:"8.5",text:"Delegates tasks"},
-{id:"8.6",text:"Seeks and accepts assistance, when appropriate"},
-{id:"8.7",text:"Monitors, reviews and cross-checks actions conscientiously"},
-{id:"8.8",text:"Verifies that tasks are completed to the expected outcome"},
-{id:"8.9",text:"Manages and recovers from interruptions, distractions, variations and failures effectively while performing tasks"}
-]}
+/* ═══════════════════════════════════════
+   DATA
+═══════════════════════════════════════ */
+const COMP = [
+  {
+    key: 'procedures',
+    title: 'Application of Procedures & Compliance',
+    obs: [
+      { id:'1.1', text:'Identifies where to find procedures and regulations' },
+      { id:'1.2', text:'Applies relevant operating instructions, procedures and techniques in a timely manner' },
+      { id:'1.3', text:'Follows SOPs unless a higher degree of safety dictates an appropriate deviation' },
+      { id:'1.4', text:'Operates aeroplane systems and associated equipment correctly' },
+      { id:'1.5', text:'Monitors aircraft systems status' },
+      { id:'1.6', text:'Complies with applicable regulations' },
+      { id:'1.7', text:'Applies relevant procedural knowledge' }
+    ]
+  },
+  {
+    key: 'knowledge',
+    title: 'Application of Knowledge',
+    obs: [
+      { id:'0.1', text:'Demonstrates practical and applicable knowledge of limitations and systems and their interaction' },
+      { id:'0.2', text:'Demonstrates required knowledge of published operating instructions' },
+      { id:'0.3', text:'Demonstrates knowledge of the physical environment, ATC environment, weather, airports and operational infrastructure' },
+      { id:'0.4', text:'Demonstrates appropriate knowledge of applicable legislation' },
+      { id:'0.5', text:'Knows where to source required information' },
+      { id:'0.6', text:'Demonstrates a positive interest in acquiring knowledge' },
+      { id:'0.7', text:'Is able to apply knowledge effectively' }
+    ]
+  },
+  {
+    key: 'communication',
+    title: 'Communication',
+    obs: [
+      { id:'2.1',  text:'Determines that the recipient is ready and able to receive information' },
+      { id:'2.2',  text:'Selects appropriately what, when, how and with whom to communicate' },
+      { id:'2.3',  text:'Conveys messages clearly, accurately and concisely' },
+      { id:'2.4',  text:'Confirms that the recipient demonstrates understanding of important information' },
+      { id:'2.5',  text:'Listens actively and demonstrates understanding when receiving information' },
+      { id:'2.6',  text:'Asks relevant and effective questions' },
+      { id:'2.7',  text:'Uses appropriate escalation in communication to resolve identified deviations' },
+      { id:'2.8',  text:'Uses and interprets non-verbal communication in a manner appropriate to the organisational and social culture' },
+      { id:'2.9',  text:'Adheres to standard radiotelephone phraseology and procedures' },
+      { id:'2.10', text:'Accurately reads, interprets, constructs and responds to datalink messages in English' }
+    ]
+  },
+  {
+    key: 'automation',
+    title: 'Flight Path Management – Automation',
+    obs: [
+      { id:'3.1', text:'Uses appropriate flight management, guidance systems and automation, as installed and applicable to conditions' },
+      { id:'3.2', text:'Monitors and detects deviations from the intended flight path and takes appropriate action' },
+      { id:'3.3', text:'Manages the flight path safely to achieve optimum operational performance' },
+      { id:'3.4', text:'Maintains the intended flight path during flight using automation while managing other tasks and distractions' },
+      { id:'3.5', text:'Selects appropriate level and mode of automation in a timely manner considering phase of flight and workload' },
+      { id:'3.6', text:'Effectively monitors automation, including engagement and automatic mode transitions' }
+    ]
+  },
+  {
+    key: 'handling',
+    title: 'Flight Path Management – Manual Control',
+    obs: [
+      { id:'4.1', text:'Controls the aircraft manually with accuracy and smoothness as appropriate to the situation' },
+      { id:'4.2', text:'Monitors and detects deviations from the intended flight path and takes appropriate action' },
+      { id:'4.3', text:'Manually controls the aeroplane using the relationship between attitude, speed and thrust, and navigation signals or visual information' },
+      { id:'4.4', text:'Manages the flight path safely to achieve optimum operational performance' },
+      { id:'4.5', text:'Maintains the intended flight path during manual flight while managing other tasks and distractions' },
+      { id:'4.6', text:'Uses appropriate flight management and guidance systems, as installed and applicable to conditions' },
+      { id:'4.7', text:'Effectively monitors flight guidance systems including engagement and automatic mode transitions' }
+    ]
+  },
+  {
+    key: 'leadership',
+    title: 'Leadership & Teamwork',
+    obs: [
+      { id:'5.1',  text:'Encourages team participation and open communication' },
+      { id:'5.2',  text:'Demonstrates initiative and provides direction when required' },
+      { id:'5.3',  text:'Engages others in planning' },
+      { id:'5.4',  text:'Considers inputs from others' },
+      { id:'5.5',  text:'Gives and receives feedback constructively' },
+      { id:'5.6',  text:'Addresses and resolves conflicts and disagreements in a constructive manner' },
+      { id:'5.7',  text:'Exercises decisive leadership when required' },
+      { id:'5.8',  text:'Accepts responsibility for decisions and actions' },
+      { id:'5.9',  text:'Carries out instructions when directed' },
+      { id:'5.10', text:'Applies effective intervention strategies to resolve identified deviations' },
+      { id:'5.11', text:'Manages cultural and language challenges, as applicable' }
+    ]
+  },
+  {
+    key: 'decisionmaking',
+    title: 'Problem Solving & Decision Making',
+    obs: [
+      { id:'6.1', text:'Identifies, assesses and manages threats and errors in a timely manner' },
+      { id:'6.2', text:'Seeks accurate and adequate information from appropriate sources' },
+      { id:'6.3', text:'Identifies and verifies what and why things have gone wrong, if appropriate' },
+      { id:'6.4', text:'Perseveres in working through problems while prioritising safety' },
+      { id:'6.5', text:'Identifies and considers appropriate options' },
+      { id:'6.6', text:'Applies appropriate and timely decision-making techniques' },
+      { id:'6.7', text:'Monitors, reviews and adapts decisions as required' },
+      { id:'6.8', text:'Adapts when faced with situations where no guidance or procedure exists' },
+      { id:'6.9', text:'Demonstrates resilience when encountering an unexpected event' }
+    ]
+  },
+  {
+    key: 'situational',
+    title: 'Situation Awareness & Information Management',
+    obs: [
+      { id:'7.1', text:'Monitors and assesses the state of the aeroplane and its systems' },
+      { id:'7.2', text:'Monitors and assesses the aeroplane\'s energy state and its anticipated flight path' },
+      { id:'7.3', text:'Monitors and assesses the general environment as it may affect the operation' },
+      { id:'7.4', text:'Validates the accuracy of information and checks for gross errors' },
+      { id:'7.5', text:'Maintains awareness of the people involved in or affected by the operation and their capacity to perform as expected' },
+      { id:'7.6', text:'Develops effective contingency plans based upon potential risks associated with threats and errors' },
+      { id:'7.7', text:'Responds to indications of reduced situation awareness' },
+      { id:'7.8', text:'Anticipates change, shares awareness and stays ahead of the situation' }
+    ]
+  },
+  {
+    key: 'workload',
+    title: 'Workload Management',
+    obs: [
+      { id:'8.1', text:'Exercises self-control in all situations' },
+      { id:'8.2', text:'Plans, prioritises and schedules appropriate tasks effectively' },
+      { id:'8.3', text:'Manages time efficiently when carrying out tasks' },
+      { id:'8.4', text:'Offers and gives assistance' },
+      { id:'8.5', text:'Delegates tasks' },
+      { id:'8.6', text:'Seeks and accepts assistance when appropriate' },
+      { id:'8.7', text:'Monitors, reviews and cross-checks actions conscientiously' },
+      { id:'8.8', text:'Verifies that tasks are completed to the expected outcome' },
+      { id:'8.9', text:'Manages and recovers from interruptions, distractions, variations and failures effectively while performing tasks' }
+    ]
+  }
 ];
 
-createApp();
+/* ═══════════════════════════════════════
+   HELPERS
+═══════════════════════════════════════ */
+const $ = s => document.querySelector(s);
+const el = (tag, props = {}) => Object.assign(document.createElement(tag), props);
 
-function createApp(){
-const app=document.getElementById("app");
+const band = v => v <= 1.5 ? 1 : v < 2.5 ? 2 : v < 3.5 ? 3 : v < 4.5 ? 4 : 5;
+const scoreForGrade = g => g === 'minus' ? 1 : g === 'zero' ? 3 : g === 'plus' ? 5 : null;
+const fmt2 = v => v == null ? '—' : v.toFixed(2);
 
-competencies.forEach(comp=>{
-const container=document.createElement("div");
-container.className="competency";
-container.id="comp-"+comp.id;
+const OUTCOME_LABELS = { 5:'HE', 4:'E', 3:'ME', 2:'LTE', 1:'DTE' };
 
-container.innerHTML=`
-<h2>${comp.title}</h2>
-<div class="header-row">
-<div>Observable Behaviour</div>
-<div>Grade (− / 0 / + / NA)</div>
-<div>Outcome (5–1)</div>
-<div>Comments</div>
-</div>`;
+function descWeights(n) {
+  const raw = Array.from({ length: n }, (_, i) => n - i);
+  const sum = raw.reduce((a, b) => a + b, 0);
+  return raw.map(w => w / sum);
+}
 
-comp.obs.forEach(ob=>{
-const row=document.createElement("div");
-row.className="row";
-row.id=`row-${comp.id}-${ob.id}`;
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+const state = { comps: {} };
 
-row.innerHTML=`
-<div class="ob-text">OB ${ob.id} ${ob.text}</div>
-<div>
-${["-","0","+","NA"].map(v=>`<label><input type="radio" name="grade-${comp.id}-${ob.id}" value="${v}"> ${v}</label>`).join(" ")}
-</div>
-<div>
-${[{v:5,t:"5 HE"},{v:4,t:"4 E"},{v:3,t:"3 ME"},{v:2,t:"2 LTE"},{v:1,t:"1 DTE"}]
-.map(o=>`<label><input type="radio" name="outcome-${comp.id}-${ob.id}" value="${o.v}" onchange="updateComp('${comp.id}')"> ${o.t}</label>`).join(" ")}
-<div class="root-warning" id="warn-${comp.id}-${ob.id}"></div>
-</div>
-<div><textarea id="c-${comp.id}-${ob.id}"></textarea></div>`;
+function makeCompState(n) {
+  return {
+    obs: Array.from({ length: n }, () => ({ grade: null, outcome: null, comment: '' })),
+    comment: '',
+    rootCause: false,
+    forcedBand: null,
+    avg: null,
+    grade: null
+  };
+}
 
-container.appendChild(row);
+function initState() {
+  COMP.forEach(c => { state.comps[c.key] = makeCompState(c.obs.length); });
+}
+initState();
+
+/* ═══════════════════════════════════════
+   RENDER
+═══════════════════════════════════════ */
+function render() {
+  const root = $('#root');
+  root.innerHTML = '';
+
+  COMP.forEach(c => {
+    const cs = state.comps[c.key];
+
+    /* ── Card ── */
+    const card = el('div', { className: 'comp-card' });
+    card.dataset.key = c.key;
+
+    /* ── Competency header ── */
+    const hdr = el('div', { className: 'comp-header' });
+    hdr.append(el('h2', { textContent: c.title }));
+
+    const gradeBadge = el('span', { className: 'comp-grade-badge' });
+    const gradeVal   = el('span', { className: 'comp-grade-val', id: `gv-${c.key}`, textContent: '—' });
+    const avgVal     = el('span', { className: 'comp-avg-val',   id: `av-${c.key}`, textContent: 'avg —' });
+    gradeBadge.append('Grade ', gradeVal, ' ', avgVal);
+
+    const rcBadge = el('span', { className: 'rc-badge', id: `rc-${c.key}`, textContent: '⚠ Root Cause' });
+    rcBadge.style.display = 'none';
+
+    const clearBtn = el('button', { className: 'btn-clear-comp', textContent: 'Clear' });
+    clearBtn.addEventListener('click', () => { state.comps[c.key] = makeCompState(c.obs.length); render(); });
+
+    hdr.append(gradeBadge, rcBadge, clearBtn);
+    card.append(hdr);
+
+    /* ── OB table ── */
+    const table = el('table', { className: 'ob-table' });
+    const thead = el('thead');
+    const hrow  = el('tr');
+    ['Observable Behaviour', 'Grade', 'Outcome (TEM)', 'Comment'].forEach((t, i) => {
+      const th = el('th', { textContent: t });
+      th.className = ['col-ob','col-grade','col-outcome','col-comment'][i];
+      hrow.append(th);
+    });
+    thead.append(hrow);
+    table.append(thead);
+
+    const tbody = el('tbody');
+
+    c.obs.forEach((ob, oi) => {
+      const os = cs.obs[oi];
+      const rowId = `${c.key}-${oi}`;
+      const row = el('tr');
+      if (os.grade === 'minus' && os.outcome != null && os.outcome <= 2) row.classList.add('rc-row');
+
+      /* col 1: OB text */
+      const tdOb = el('td', { className: 'col-ob' });
+      tdOb.innerHTML = `<div class="ob-num">OB ${ob.id}</div><div class="ob-text">${ob.text}</div>`;
+
+      /* col 2: grade */
+      const tdGrade = el('td', { className: 'col-grade' });
+      const gradeRadios = el('div', { className: 'grade-radios' });
+      [['minus','–'],['zero','0'],['plus','+'],['na','NA']].forEach(([val, lbl]) => {
+        const lel = el('label', { className: 'grade-radio-label' + (val==='na'?' na-pill':'') });
+        const inp = el('input'); inp.type='radio'; inp.name=`g-${rowId}`; inp.value=val;
+        if (os.grade === val) inp.checked = true;
+        let gradeWasChecked = false;
+        inp.addEventListener('mousedown', () => { gradeWasChecked = inp.checked; });
+        inp.addEventListener('touchstart', () => { gradeWasChecked = inp.checked; }, { passive: true });
+        inp.addEventListener('click', () => {
+          if (gradeWasChecked) {
+            os.grade = null;
+            inp.checked = false;
+            updateComp(c.key);
+          } else {
+            os.grade = val;
+            updateComp(c.key);
+          }
+        });
+        const pill = el('span', { className: 'grade-pill', textContent: lbl });
+        lel.append(inp, pill);
+        gradeRadios.append(lel);
+      });
+      // print-only text
+      const gradePrint = el('div', { className: 'grade-print', textContent: os.grade ? ({minus:'–',zero:'0',plus:'+',na:'NA'}[os.grade]||'') : '—' });
+      tdGrade.append(gradeRadios, gradePrint);
+
+      /* col 3: outcome */
+      const tdOutcome = el('td', { className: 'col-outcome' });
+      const outcomeRadios = el('div', { className: 'outcome-radios' });
+      [5,4,3,2,1].forEach(num => {
+        const lbl2 = OUTCOME_LABELS[num];
+        const chip = el('div', { className: 'outcome-chip' + (num<=2?' low-chip':'') + (os.outcome===num?' oc-selected':'') });
+        chip.innerHTML = `<span class="oc-num">${num}</span><span class="oc-lbl">${lbl2}</span>`;
+        chip.setAttribute('role', 'button');
+        chip.setAttribute('tabindex', '0');
+
+        const handleOutcomeClick = () => {
+          if (os.outcome === num) {
+            os.outcome = null;
+          } else {
+            os.outcome = num;
+            if (num <= 2) {
+              os.grade = 'minus';
+            } else if (num === 3) {
+              if (!os.grade || os.grade === 'minus') os.grade = 'zero';
+            } else {
+              if (!os.grade || os.grade === 'minus') os.grade = 'plus';
+            }
+          }
+          updateComp(c.key);
+          render();
+        };
+
+        chip.addEventListener('click', handleOutcomeClick);
+        chip.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleOutcomeClick(); } });
+        outcomeRadios.append(chip);
+      });
+      const outcomePrint = el('div', { className: 'outcome-print', textContent: os.outcome ? `${os.outcome} ${OUTCOME_LABELS[os.outcome]}` : '—' });
+      tdOutcome.append(outcomeRadios, outcomePrint);
+
+      /* col 4: per-OB comment */
+      const tdComment = el('td', { className: 'col-comment' });
+      const cmtInp = el('textarea', { className: 'ob-comment', placeholder: 'Note…', value: os.comment || '' });
+      cmtInp.addEventListener('input', e => { os.comment = e.target.value; });
+      tdComment.append(cmtInp);
+
+      row.append(tdOb, tdGrade, tdOutcome, tdComment);
+      tbody.append(row);
+    });
+
+    table.append(tbody);
+    card.append(table);
+
+    /* ── Competency footer (overall comment + RC toggle) ── */
+    const footer = el('div', { className: 'comp-footer' });
+
+    const cmtWrap = el('div', { className: 'comp-comment-wrap' });
+    const cmtLabel = el('div', { className: 'comp-comment-label', textContent: 'Competency comment / recommendation' });
+    const cmtArea  = el('textarea', { className: 'comp-comment', placeholder: 'Overall notes for this competency…', value: cs.comment || '' });
+    cmtArea.addEventListener('input', e => { cs.comment = e.target.value; });
+    cmtWrap.append(cmtLabel, cmtArea);
+
+    const meta = el('div', { className: 'comp-meta' });
+    const rcRow = el('div', { className: 'rc-toggle' });
+    const rcYesLbl = el('label'); const rcYes = el('input'); rcYes.type='radio'; rcYes.name=`rc-${c.key}`; rcYes.value='yes';
+    if (cs.rootCause) rcYes.checked = true;
+    rcYes.addEventListener('change', () => { cs.rootCause = true; document.getElementById(`rc-${c.key}`).style.display=''; });
+    rcYesLbl.append(rcYes, ' Root Cause');
+
+    const rcNoLbl = el('label'); const rcNo = el('input'); rcNo.type='radio'; rcNo.name=`rc-${c.key}`; rcNo.value='no';
+    if (!cs.rootCause) rcNo.checked = true;
+    rcNo.addEventListener('change', () => { cs.rootCause = false; document.getElementById(`rc-${c.key}`).style.display='none'; });
+    rcNoLbl.append(rcNo, ' Not RC');
+
+    rcRow.append('Root Cause: ', rcYesLbl, ' ', rcNoLbl);
+    meta.append(rcRow);
+    footer.append(cmtWrap, meta);
+    card.append(footer);
+
+    root.append(card);
+  });
+
+  updateAll();
+}
+
+/* ═══════════════════════════════════════
+   GRADE MATH
+═══════════════════════════════════════ */
+function updateComp(key) {
+  const cs  = state.comps[key];
+  const cd  = COMP.find(c => c.key === key);
+  const w   = descWeights(cd.obs.length);
+
+  // Check for any LTE/DTE outcomes
+  const lowObs = cs.obs.filter(o => o.outcome != null && o.outcome <= 2);
+  if (lowObs.length) {
+    cs.forcedBand = lowObs.some(o => o.outcome === 1) ? 1 : 2;
+    cs.rootCause  = true;
+  } else {
+    cs.forcedBand = null;
+  }
+
+  // Weighted average (ignore NA / unset)
+  let sum = 0, wsum = 0;
+  cs.obs.forEach((o, i) => {
+    const s = scoreForGrade(o.grade);
+    if (s != null) { sum += s * w[i]; wsum += w[i]; }
+  });
+  const avg = wsum > 0 ? sum / wsum : null;
+  cs.avg   = avg;
+  cs.grade = cs.forcedBand != null ? cs.forcedBand : (avg == null ? null : band(avg));
+
+  // Update header UI (may not exist yet if called before render)
+  const gvEl = document.getElementById(`gv-${key}`);
+  const avEl = document.getElementById(`av-${key}`);
+  const rcEl = document.getElementById(`rc-${key}`);
+  if (gvEl) gvEl.textContent = cs.grade != null ? String(cs.grade) : '—';
+  if (avEl) avEl.textContent = `avg ${fmt2(avg)}`;
+  if (rcEl) rcEl.style.display = cs.rootCause ? '' : 'none';
+
+  updateOverall();
+}
+
+function updateAll() {
+  COMP.forEach(c => updateComp(c.key));
+}
+
+function updateOverall() {
+  let any1=false, any2=false, acc=0, cnt=0;
+  COMP.forEach(c => {
+    const cs = state.comps[c.key];
+    if (cs.forcedBand === 1) any1 = true;
+    if (cs.forcedBand === 2) any2 = true;
+    if (cs.avg != null) { acc += cs.avg; cnt++; }
+  });
+  const oAvg   = cnt ? acc / cnt : null;
+  const oGrade = any1 ? 1 : any2 ? 2 : (oAvg == null ? null : band(oAvg));
+
+  $('#overallGradeBig').textContent  = oGrade != null ? String(oGrade) : '—';
+  $('#overallAvgSmall').textContent  = `Avg: ${fmt2(oAvg)}`;
+  $('#badgeAvg b').textContent       = fmt2(oAvg);
+  $('#badgeGrade b').textContent     = oGrade != null ? String(oGrade) : '—';
+
+  // Mini chips per competency
+  const grid = $('#overallCompGrid');
+  grid.innerHTML = '';
+  COMP.forEach(c => {
+    const cs = state.comps[c.key];
+    const chip = el('div', { className: 'overall-comp-chip' + (cs.forcedBand ? ' forced' : '') });
+    chip.innerHTML = `<span class="occ-title">${c.title.split(' ').slice(0,2).join(' ')}</span><span class="occ-grade">${cs.grade ?? '—'}</span>`;
+    grid.append(chip);
+  });
+}
+
+/* ═══════════════════════════════════════
+   CONTROLS
+═══════════════════════════════════════ */
+$('#compactBtn').addEventListener('click', () => {
+  document.body.classList.toggle('compact');
+  $('#compactBtn').textContent = document.body.classList.contains('compact') ? 'Full View' : 'Compact View';
 });
 
-container.innerHTML+=`
-<div class="footer">
-<div>Competency Grade: <span id="g-${comp.id}">—</span></div>
-<button onclick="clearComp('${comp.id}')">Clear Competency</button>
-</div>`;
+$('#printBtn').addEventListener('click', () => window.print());
 
-app.appendChild(container);
-});
-}
-
-function updateComp(id){
-let worst=5;
-const comp=competencies.find(c=>c.id===id);
-
-comp.obs.forEach(ob=>{
-const outcome=document.querySelector(`input[name="outcome-${id}-${ob.id}"]:checked`);
-const row=document.getElementById(`row-${id}-${ob.id}`);
-const warn=document.getElementById(`warn-${id}-${ob.id}`);
-const comment=document.getElementById(`c-${id}-${ob.id}`);
-
-row.classList.remove("highlight");
-warn.innerText="";
-
-if(outcome){
-const val=parseInt(outcome.value);
-worst=Math.min(worst,val);
-if(val<=2){
-row.classList.add("highlight");
-warn.innerText="Root cause required for LTE/DTE";
-if(comment.value.trim()===""){
-worst=1;
-}
-}
-}
+$('#clearBtn').addEventListener('click', () => {
+  if (!confirm('Clear all grading entries? This cannot be undone.')) return;
+  initState();
+  render();
 });
 
-document.getElementById("g-"+id).innerText=worst;
-updateOverall();
-}
-
-function updateOverall(){
-let overall=5;
-competencies.forEach(c=>{
-const g=document.getElementById("g-"+c.id).innerText;
-if(g!=="—") overall=Math.min(overall,parseInt(g));
+$('#saveBtn').addEventListener('click', () => {
+  const payload = {
+    v: 2,
+    session: {
+      trainee:  $('#traineeNum').value,
+      trainer:  $('#trainerNum').value,
+      name:     $('#sessionName').value,
+      exercise: $('#exerciseNum').value,
+      date:     $('#sessionDate').value,
+    },
+    comps: state.comps
+  };
+  localStorage.setItem('ftg_v2', JSON.stringify(payload));
+  alert('Saved to this browser/device.');
 });
-document.getElementById("overallGrade").innerText=overall;
-}
 
-function clearComp(id){
-document.querySelectorAll(`#comp-${id} input`).forEach(i=>i.checked=false);
-document.querySelectorAll(`#comp-${id} textarea`).forEach(t=>t.value="");
-document.querySelectorAll(`#comp-${id} .highlight`).forEach(r=>r.classList.remove("highlight"));
-document.querySelectorAll(`#comp-${id} .root-warning`).forEach(w=>w.innerText="");
-document.getElementById("g-"+id).innerText="—";
-updateOverall();
-}
+$('#loadBtn').addEventListener('click', () => {
+  const raw = localStorage.getItem('ftg_v2');
+  if (!raw) { alert('No saved session found.'); return; }
+  try {
+    const payload = JSON.parse(raw);
+    if (payload.session) {
+      $('#traineeNum').value  = payload.session.trainee || '';
+      $('#trainerNum').value  = payload.session.trainer || '';
+      $('#sessionName').value = payload.session.name || '';
+      $('#exerciseNum').value = payload.session.exercise || '';
+      $('#sessionDate').value = payload.session.date || '';
+    }
+    if (payload.comps) Object.assign(state.comps, payload.comps);
+    render();
+  } catch(e) { alert('Could not load saved data — it may be corrupted.'); }
+});
 
-function clearAll(){competencies.forEach(c=>clearComp(c.id));}
+/* ── Default date to today ── */
+$('#sessionDate').valueAsDate = new Date();
 
+/* ── Boot ── */
+render();
 </script>
 </body>
 </html>
